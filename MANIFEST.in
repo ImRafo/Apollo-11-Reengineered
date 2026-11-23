@@ -1,0 +1,2 @@
+# Repository tests depend on the historical archives and native build scripts.
+prune tests
