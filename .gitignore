@@ -1,0 +1,10 @@
+# Python environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.ruff_cache/
+*.egg-info/
+
+# Local packages and historical build outputs
+/build/
+/dist/
