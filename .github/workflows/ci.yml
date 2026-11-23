@@ -38,3 +38,35 @@ jobs:
         shell: bash
         run: |
           echo 'Python ${{ matrix.python }} on ${{ matrix.os }} — ${{ job.status }}' >> "$GITHUB_STEP_SUMMARY"
+
+  quality:
+    name: Lint, format and package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.14'
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-dev.txt
+      - name: Install development tooling
+        run: python -m pip install -r requirements-dev.txt
+      - name: Lint Python code
+        run: python -m ruff check tools scripts tests
+      - name: Check Python formatting
+        run: python -m ruff format --check tools scripts tests
+      - name: Build source distribution and wheel
+        run: python -m build
+      - name: Verify package metadata
+        run: python -m twine check --strict dist/*
+      - name: Test the wheel entry point
+        run: |
+          python -m pip install --no-deps dist/*.whl
+          apollo-agc compare Luminary099/MAIN.agc Luminary099/MAIN.agc --format json
+      - name: Upload validated package artifacts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: python-distributions
+          path: dist/
