@@ -52,7 +52,7 @@ class AnalysisCliTest(unittest.TestCase):
         path = Path("invalid.agc")
         errors = [
             (
-                UnicodeDecodeError("utf-8", b"\xff", 0, 1, "bad byte"),
+                b"\xff",
                 "invalid UTF-8 at byte 0",
             ),
             (PermissionError(13, "Permission denied"), "Permission denied"),
@@ -60,10 +60,25 @@ class AnalysisCliTest(unittest.TestCase):
         for failure, message in errors:
             with (
                 self.subTest(failure=failure),
-                patch.object(Path, "read_text", side_effect=failure),
+                patch.object(
+                    Path,
+                    "read_bytes",
+                    side_effect=failure if isinstance(failure, OSError) else None,
+                    return_value=failure,
+                ),
             ):
                 with self.assertRaisesRegex(ValueError, message):
                     read_text(path)
                 code, output, detail = self.invoke("analyze", str(path))
                 self.assertEqual((code, output), (1, ""))
                 self.assertIn(str(path), detail)
+
+    def test_utf8_bom_is_accepted_and_error_offsets_include_it(self):
+        path = Path("bom.agc")
+        with patch.object(
+            Path, "read_bytes", return_value=bytes.fromhex("efbbbf") + b"# comment"
+        ):
+            self.assertEqual(read_text(path), "# comment")
+        with patch.object(Path, "read_bytes", return_value=bytes.fromhex("efbbbf41ff")):
+            with self.assertRaisesRegex(ValueError, "invalid UTF-8 at byte 4"):
+                read_text(path)

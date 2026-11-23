@@ -82,8 +82,9 @@ def record_words(line: str, number: int, emitted: list[set[int]]) -> None:
 
 
 def analyze_listing(path: Path) -> dict:
+    source = read_text(path)
     try:
-        banks = parse_listing(read_text(path))
+        banks = parse_listing(source)
     except ValueError as error:
         raise ValueError(f"{path}: {error}") from error
     return {"listing": str(path), "target": "AGC4", "banks": banks}

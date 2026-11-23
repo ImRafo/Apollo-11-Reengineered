@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from codecs import BOM_UTF8
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -42,7 +43,7 @@ INTERPRETIVE = frozenset(
 )
 
 TOKEN = re.compile(r"[^ \t]+")
-LABEL = re.compile(r"[A-Za-z0-9._/+*(),=\-]+")
+LABEL = re.compile(r"[A-Za-z0-9._/+*(),=?'&\-]+")
 OFFSET = re.compile(r"[+-][0-9]+D?")
 CONTROL = re.compile(r"[\x00-\x08\x0b-\x1f\x7f]")
 
@@ -62,11 +63,15 @@ class SourceLine:
 def read_text(path: Path) -> str:
     """Read UTF-8 (optionally with BOM) and retain a path in failure messages."""
     try:
-        return path.read_text(encoding="utf-8-sig")
-    except UnicodeDecodeError as error:
-        raise ValueError(f"{path}: invalid UTF-8 at byte {error.start}") from error
+        data = path.read_bytes()
     except OSError as error:
         raise ValueError(f"{path}: {error.strerror or error}") from error
+    bom_length = len(BOM_UTF8) if data.startswith(BOM_UTF8) else 0
+    try:
+        return data[bom_length:].decode("utf-8")
+    except UnicodeDecodeError as error:
+        offset = bom_length + error.start
+        raise ValueError(f"{path}: invalid UTF-8 at byte {offset}") from error
 
 
 def parse_source(text: str) -> list[SourceLine]:
