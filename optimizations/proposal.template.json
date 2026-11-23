@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "routine": "Replace with the routine and source revision",
+  "rationale": "Explain the proposed change and the expected benefit.",
+  "original_code": "Replace with the original AGC assembly.",
+  "modified_code": "Replace with the proposed AGC assembly.",
+  "memory_words": null,
+  "execution_mct": null,
+  "equivalence": {
+    "result": "not_run"
+  },
+  "emulator": {
+    "result": "not_run"
+  },
+  "limitations": "Describe hardware-state assumptions, untested paths and known limitations.",
+  "status": "proposed"
+}

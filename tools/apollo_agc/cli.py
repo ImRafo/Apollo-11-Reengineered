@@ -8,6 +8,7 @@ from pathlib import Path
 from .analysis import analyze, format_analysis
 from .comparison import compare, format_comparison
 from .listing import analyze_listing, format_listing
+from .optimization import format_optimization, load_optimization
 
 
 def render(report: dict, formatter, output_format: str) -> None:
@@ -33,6 +34,11 @@ def run_comparison(args: argparse.Namespace) -> int:
 
 def run_memory(args: argparse.Namespace) -> int:
     render(analyze_listing(args.listing), format_listing, args.format)
+    return 0
+
+
+def run_optimization(args: argparse.Namespace) -> int:
+    render(load_optimization(args.report), format_optimization, args.format)
     return 0
 
 
@@ -66,6 +72,13 @@ def main(argv: list[str] | None = None) -> int:
     memory.add_argument("listing", type=Path)
     add_output_format(memory)
     memory.set_defaults(handler=run_memory)
+
+    optimization = commands.add_parser(
+        "optimization", help="validate an optimization report"
+    )
+    optimization.add_argument("report", type=Path)
+    add_output_format(optimization)
+    optimization.set_defaults(handler=run_optimization)
 
     args = parser.parse_args(argv)
     try:
