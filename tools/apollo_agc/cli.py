@@ -6,6 +6,7 @@ import sys
 from pathlib import Path
 
 from .analysis import analyze, format_analysis
+from .comparison import compare, format_comparison
 
 
 def render(report: dict, formatter, output_format: str) -> None:
@@ -24,6 +25,11 @@ def run_analysis(args: argparse.Namespace) -> int:
     return int(args.strict and report["totals"]["malformed"] > 0)
 
 
+def run_comparison(args: argparse.Namespace) -> int:
+    render(compare(args.before, args.after), format_comparison, args.format)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="apollo-agc")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -39,6 +45,14 @@ def main(argv: list[str] | None = None) -> int:
     )
     add_output_format(analysis)
     analysis.set_defaults(handler=run_analysis)
+
+    comparison = commands.add_parser(
+        "compare", help="compare two Block II source files"
+    )
+    comparison.add_argument("before", type=Path)
+    comparison.add_argument("after", type=Path)
+    add_output_format(comparison)
+    comparison.set_defaults(handler=run_comparison)
 
     args = parser.parse_args(argv)
     try:
