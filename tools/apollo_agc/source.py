@@ -26,21 +26,24 @@ DIRECTIVES = frozenset(
 )
 INTERPRETIVE = frozenset(
     """
-    ABS ACOS ASIN AXC AXC,1 AXC,2 AX TSL BHIZ BINV BMN BOFF BOFSET BOFCLR
-    BON BONCLR BONSET BOV BOVB BPL BZE CALL CALRB CCALL CLEAR CLRGO COS DAD
-    DCALL DCOMP DDV DLOAD DMP DMPR DOT DROUND DSQ DSU EXIT GOTO INCR,1
-    INCR,2 INTLOP INVGO ITA ITC ITCQ IX,1 IX,2 LXA LXA,1 LXA,2 LXC
-    LXC,1 LXC,2 MXV NORM PDDL PDVL PUSH RTB RVQ SET SETGO SIGN SIN SL
-    SL1 SL2 SL3 SL4 SLOAD SLR SL1R SL2R SL3R SL4R SQRT SR SR1 SR2 SR3 SR4
-    SSP STADR STCALL STODL STODL* STORE STOVL STOVL* SWAP TAD TLOAD
-    UNIT V/SC VAD VCOMP VDEF VLOAD VPROJ VSQ VSL VSL1 VSL2 VSR VSR1 VSR2
-    VSUB VSU VXM VXSC VXSU XAD,1 XAD,2 XCHX XSU,1 XSU,2
+    ABS ABVAL ACOS ARCCOS ARCSIN ASIN AXC,1 AXC,2 AXT,1 AXT,2 BDDV BDDV* BDSU BDSU*
+    BHIZ BMN BOF BOFCLR BOFF BOFINV BOFSET BON BONCLR BONINV BONSET BOV BOVB BPL BVSU
+    BVSU* BZE CALL CALRB CCALL CCALL* CGOTO CGOTO* CLEAR CLR CLRGO COS COSINE DAD DAD*
+    DCOMP DDV DDV* DLOAD DLOAD* DMP DMP* DMPR DMPR* DOT DOT* DSQ DSU DSU* EXIT GOTO
+    INCR,1 INCR,2 INVERT INVGO ITA ITCQ LXA,1 LXA,2 LXC,1 LXC,2 MXV MXV* NORM NORM*
+    PDDL PDDL* PDVL PDVL* PUSH ROUND RTB RVQ SET SETGO SETPD SIGN SIGN* SIN SINE SL SL*
+    SL1 SL1R SL2 SL2R SL3 SL3R SL4 SL4R SLOAD SLOAD* SLR SLR* SQRT SR SR* SR1 SR1R SR2
+    SR2R SR3 SR3R SR4 SR4R SRR SRR* SSP SSP* STADR STCALL STODL STODL* STORE STOVL
+    STOVL* STQ SXA,1 SXA,2 TAD TAD* TIX,1 TIX,2 TLOAD TLOAD* UNIT V/SC V/SC* VAD VAD*
+    VCOMP VDEF VLOAD VLOAD* VPROJ VPROJ* VSL VSL* VSL1 VSL2 VSL3 VSL4 VSL5 VSL6 VSL7
+    VSL8 VSQ VSR VSR* VSR1 VSR2 VSR3 VSR4 VSR5 VSR6 VSR7 VSR8 VSU VSU* VXM VXM*
+    VXSC VXSC* VXV VXV* XAD,1 XAD,2 XCHX,1 XCHX,2 XSU,1 XSU,2
     """.split()
 )
 
 TOKEN = re.compile(r"[^ \t]+")
 LABEL = re.compile(r"[A-Za-z0-9._/+*(),=\-]+")
-OFFSET = re.compile(r"[+-][0-9]+")
+OFFSET = re.compile(r"[+-][0-9]+D?")
 CONTROL = re.compile(r"[\x00-\x08\x0b-\x1f\x7f]")
 
 
@@ -53,6 +56,7 @@ class SourceLine:
     operands: tuple[str, ...] = ()
     comment: str | None = None
     issue: str | None = None
+    relative_label: str | None = None
 
 
 def read_text(path: Path) -> str:
@@ -94,6 +98,7 @@ def parse_line(number: int, line: str) -> SourceLine:
 
     first = tokens[0]
     label = None
+    relative_label = None
     if first.start() == 0:
         label = first.group()
         if LABEL.fullmatch(label) is None:
@@ -102,9 +107,10 @@ def parse_line(number: int, line: str) -> SourceLine:
             )
         tokens = tokens[1:]
     elif first.start() < 8 and OFFSET.fullmatch(first.group()):
+        relative_label = first.group()
         if len(tokens) == 1:
             return SourceLine(
-                number, "continuation", operands=(first.group(),), comment=comment
+                number, "continuation", operands=(relative_label,), comment=comment
             )
         tokens = tokens[1:]
 
@@ -117,12 +123,19 @@ def parse_line(number: int, line: str) -> SourceLine:
         kind = "instruction"
     elif operation in DIRECTIVES:
         kind = "directive"
-    elif operation in INTERPRETIVE or operation.removesuffix("*") in INTERPRETIVE:
+    elif operation in INTERPRETIVE:
         kind = "interpretive"
-    elif not operands and tokens[0].start() >= 16 and LABEL.fullmatch(operation):
+    elif not operands and tokens[0].start() >= 24 and LABEL.fullmatch(operation):
         return SourceLine(
-            number, "continuation", label, operands=(operation,), comment=comment
+            number,
+            "continuation",
+            label,
+            operands=(operation,),
+            comment=comment,
+            relative_label=relative_label,
         )
     else:
         kind = "unrecognized"
-    return SourceLine(number, kind, label, operation, operands, comment)
+    return SourceLine(
+        number, kind, label, operation, operands, comment, relative_label=relative_label
+    )

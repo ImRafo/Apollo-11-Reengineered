@@ -33,6 +33,7 @@ class SourceTest(unittest.TestCase):
         self.assertEqual(lines[5].operands, ("1/4",))
         self.assertEqual(lines[5].comment, "Inline comment")
         self.assertIsNone(lines[10].label)
+        self.assertEqual(lines[10].relative_label, "+1")
         self.assertEqual(lines[12].operands, ("other.agc",))
 
     def test_column_one_is_a_label_even_when_named_like_an_opcode(self):
@@ -66,3 +67,13 @@ class SourceTest(unittest.TestCase):
             ],
         )
         self.assertEqual(lines[1].issue, "control character")
+
+    def test_native_and_interpretive_mnemonics_are_recognized_as_written(self):
+        lines = parse_source(
+            " +12D           TC Q\n                VXV*\n                AX"
+        )
+        self.assertEqual(lines[0].relative_label, "+12D")
+        self.assertEqual(
+            [line.kind for line in lines],
+            ["instruction", "interpretive", "unrecognized"],
+        )
