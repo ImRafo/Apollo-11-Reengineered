@@ -13,6 +13,12 @@ void BacktraceAdd(agc_t *cpu, int cause)
     (void)cause;
 }
 
+/* Unix initialization requests nonblocking stdin for interactive input. */
+void UnblockSocket(int descriptor)
+{
+    (void)descriptor;
+}
+
 int main(int argc, char **argv)
 {
     if (argc != 2) {
