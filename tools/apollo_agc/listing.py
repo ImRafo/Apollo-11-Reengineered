@@ -18,6 +18,7 @@ SUMMARY = ("Unresolved symbols", "Fatal errors", "Multiply-defined symbols")
 
 
 def parse_listing(text: str) -> list[dict]:
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
     if not HEADER.search(text):
         raise ValueError("expected a plain-text yaYUL listing with target AGC4")
     for label in SUMMARY:

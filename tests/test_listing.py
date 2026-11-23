@@ -35,6 +35,9 @@ def word_row(pc, first="", second="", label_value=""):
 
 
 class ListingTest(unittest.TestCase):
+    def test_accepts_native_windows_line_endings(self):
+        self.assertEqual(len(parse_listing(listing().replace("\n", "\r\n"))), 36)
+
     def test_reads_only_object_word_columns_and_includes_the_checksum(self):
         banks = parse_listing(
             listing(
