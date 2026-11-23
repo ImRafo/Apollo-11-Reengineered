@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .analysis import analyze, format_analysis
 from .comparison import compare, format_comparison
+from .listing import analyze_listing, format_listing
 
 
 def render(report: dict, formatter, output_format: str) -> None:
@@ -27,6 +28,11 @@ def run_analysis(args: argparse.Namespace) -> int:
 
 def run_comparison(args: argparse.Namespace) -> int:
     render(compare(args.before, args.after), format_comparison, args.format)
+    return 0
+
+
+def run_memory(args: argparse.Namespace) -> int:
+    render(analyze_listing(args.listing), format_listing, args.format)
     return 0
 
 
@@ -53,6 +59,13 @@ def main(argv: list[str] | None = None) -> int:
     comparison.add_argument("after", type=Path)
     add_output_format(comparison)
     comparison.set_defaults(handler=run_comparison)
+
+    memory = commands.add_parser(
+        "memory", help="inspect fixed-bank usage in a yaYUL listing"
+    )
+    memory.add_argument("listing", type=Path)
+    add_output_format(memory)
+    memory.set_defaults(handler=run_memory)
 
     args = parser.parse_args(argv)
     try:
