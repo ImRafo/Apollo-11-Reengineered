@@ -1,0 +1,52 @@
+"""Command-line interface for the AGC research tools."""
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+from .analysis import analyze, format_analysis
+
+
+def render(report: dict, formatter, output_format: str) -> None:
+    print(
+        json.dumps(report, indent=2) if output_format == "json" else formatter(report)
+    )
+
+
+def add_output_format(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--format", choices=("text", "json"), default="text")
+
+
+def run_analysis(args: argparse.Namespace) -> int:
+    report = analyze(args.paths)
+    render(report, format_analysis, args.format)
+    return int(args.strict and report["totals"]["malformed"] > 0)
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="apollo-agc")
+    commands = parser.add_subparsers(dest="command", required=True)
+
+    analysis = commands.add_parser("analyze", help="report on Block II source files")
+    analysis.add_argument(
+        "paths", type=Path, nargs="+", help="source files or directories"
+    )
+    analysis.add_argument(
+        "--strict",
+        action="store_true",
+        help="exit with an error if malformed lines are reported",
+    )
+    add_output_format(analysis)
+    analysis.set_defaults(handler=run_analysis)
+
+    args = parser.parse_args(argv)
+    try:
+        return args.handler(args)
+    except (OSError, ValueError) as error:
+        print(f"{parser.prog}: {error}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

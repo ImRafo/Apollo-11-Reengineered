@@ -11,6 +11,9 @@ requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 
+[project.scripts]
+apollo-agc = "apollo_agc.cli:main"
+
 [project.urls]
 Repository = "https://github.com/ImRafo/Apollo-11-Reengineered"
 
