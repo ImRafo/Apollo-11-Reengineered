@@ -20,6 +20,7 @@ optimization records and binary difference location.
 Python CI tests installed commands on Linux and Windows with Python 3.11
 and 3.14. The quality job validates a wheel and source distribution.
 The historical workflow uses the pinned Virtual AGC source, compares the
-Luminary rope byte for byte, exports fixed-bank analysis and checks the
-headless boot checkpoint. These integration checks are also available
-locally through the [historical build guide](HISTORICAL_BUILD.md).
+upstream and normalized archive ropes byte for byte against the proofed
+reference, exports fixed-bank analysis and checks the headless boot
+checkpoint. These integration checks are also available locally through
+the [historical build guide](HISTORICAL_BUILD.md).

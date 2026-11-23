@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/historical.yml'
+      - 'Luminary099/**'
       - 'scripts/**'
       - 'tools/**'
       - 'pyproject.toml'
@@ -11,6 +12,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/historical.yml'
+      - 'Luminary099/**'
       - 'scripts/**'
       - 'tools/**'
       - 'pyproject.toml'
@@ -33,6 +35,9 @@ jobs:
         run: python scripts/virtualagc.py --cc cc
       - name: Verify Luminary against the proofed rope
         run: python scripts/reproduce_luminary.py
+      - name: Verify the normalized archive against the proofed rope
+        run: |
+          python scripts/reproduce_luminary.py --source archive-normalized --output build/luminary099-archive-normalized
       - name: Check fixed-bank analysis
         run: |
           python -m pip install -e .
@@ -49,4 +54,6 @@ jobs:
             build/luminary099/assembly.log
             build/luminary099/oct2bin.log
             build/luminary099/memory.json
+            build/luminary099-archive-normalized/verification.json
+            build/luminary099-archive-normalized/assembly.log
             build/emulator/smoke.json
