@@ -41,6 +41,7 @@ any representation-bit changes. The dump stores banks in the order 02, 03,
 | Assembler | 0 fatal errors, 0 unresolved symbols, 1 erasable-bank warning |
 | Rope size | 73,728 bytes |
 | Byte comparison | 0 differing encoded words |
+| Staged archive with aliases and relative-label layout corrected | 0 differing encoded words |
 | SHA-256 | `1f5326e038de5b741b2f27b01ec949dbd688cf1906994e997402587c8628f40e` |
 | Fixed-bank listing | 36 checksums and 36,575 emitted or checksum words |
 | Headless yaAGC check | 4,096 cycles, Z from `4000` to `6521` octal |
@@ -50,6 +51,6 @@ Virtual AGC source. The emulator check uses the CPU core and NullAPI with
 zeroed erasable startup state and no spacecraft peripherals. It checks a
 single deterministic boot checkpoint.
 
-For the different result obtained from the archived source in this
-repository, see the [archive include alias experiment](../experiments/archive-include-aliases.md).
+For the raw archive, alias-only build and verified normalized build, see the
+[archive reproduction experiment](../experiments/archive-include-aliases.md).
 Comanche 055 remains an archival and source-analysis input.

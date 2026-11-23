@@ -23,6 +23,16 @@ ALIASES = {
     "LAMBERT_AIMPOINT_GUIDANCE.agc": "GENERAL_LAMBERT_AIMPOINT_GUIDANCE.agc",
     "TRIM_GIMBAL_CNTROL_SYSTEM.agc": "TRIM_GIMBAL_CONTROL_SYSTEM.agc",
 }
+RELATIVE_LABEL_LAYOUT = {
+    "SERVICER.agc": (
+        b" \t+3\tTC\tINTPRET",
+        b" +3\t\tTC\tINTPRET",
+    ),
+    "TRIM_GIMBAL_CONTROL_SYSTEM.agc": (
+        b"\t+2\tINDEX\tQRNDXER",
+        b" +2\t\tINDEX\tQRNDXER",
+    ),
+}
 
 
 def read_rope(path: Path) -> bytes:
@@ -91,13 +101,27 @@ def decode_reference(checkout: Path, tools: Path, output: Path) -> bytes:
     return reference
 
 
+def normalize_relative_labels(working: Path) -> None:
+    for name, (old, new) in RELATIVE_LABEL_LAYOUT.items():
+        path = working / name
+        contents = path.read_bytes()
+        record = b"\n" + old
+        if contents.count(record) != 1:
+            raise ValueError(
+                f"{path}: expected exactly one archived relative-label record"
+            )
+        path.write_bytes(contents.replace(record, b"\n" + new, 1))
+
+
 def assemble(checkout: Path, tools: Path, output: Path, source: str) -> bytes:
     working = output / "source"
     working.mkdir()
     program = (checkout if source == "upstream" else ROOT) / "Luminary099"
     for path in program.glob("*.agc"):
         shutil.copyfile(path, working / path.name)
-    if source == "archive-aliases":
+    if source == "archive-normalized":
+        normalize_relative_labels(working)
+    if source in ("archive-aliases", "archive-normalized"):
         for alias, original in ALIASES.items():
             shutil.copyfile(working / original, working / alias)
 
@@ -149,7 +173,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=ROOT / "build" / "luminary099")
     parser.add_argument(
         "--source",
-        choices=("upstream", "archive", "archive-aliases"),
+        choices=("upstream", "archive", "archive-aliases", "archive-normalized"),
         default="upstream",
     )
     args = parser.parse_args()

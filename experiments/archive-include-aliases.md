@@ -1,16 +1,17 @@
-# Luminary archive include aliases
+# Luminary archive reproduction
 
-**Question.** Can the archived GitHub transcription reproduce the
-proofed rope when its two missing include names are supplied?
+**Question.** Which changes to a working copy of the archived GitHub
+transcription are required to reproduce the proofed rope?
 
 ## Procedure
 
 Run the [historical toolchain setup](../docs/HISTORICAL_BUILD.md), then run
-the two archive modes in separate output directories.
+the three archive modes in separate output directories.
 
 ```sh
 python scripts/reproduce_luminary.py --source archive --output build/luminary-archive
 python scripts/reproduce_luminary.py --source archive-aliases --output build/luminary-aliases
+python scripts/reproduce_luminary.py --source archive-normalized --output build/luminary-normalized
 ```
 
 The alias mode stages these two copies inside the build directory. The
@@ -39,7 +40,18 @@ differed from the proofed image.
 | `33` | `1777` | `047674` | `017120` | Bank checksum |
 
 Values in the table are octal. Encoded file words include the low
-representation bit, so they differ from the 15-bit values printed in the
-assembly listing. The two include aliases are enough to build an image.
-The two object-word differences still need to be traced to the source scans,
-and the resulting image has no equivalence or emulator result in this experiment.
+representation bit outside the 15-bit value printed in the assembly listing.
+
+## Relative-label layout
+
+The differing program words come from `SERVICER.agc:1133` and
+`TRIM_GIMBAL_CONTROL_SYSTEM.agc:382`. The archived whitespace puts `+3`
+and `+2` in column 9 after tab expansion. yaYUL recognizes relative labels
+in columns 2 through 8. The normalized variant moves each relative label
+into column 2 and aligns its mnemonic at column 17, matching the pinned
+transcription. [yaYUL column rules](https://github.com/virtualagc/virtualagc/blob/27b7ae91f0a8f0e9145091dba12eb66d543c529a/yaYUL/Pass.c#L1877-L1892).
+
+With both layout corrections and the include aliases applied to the working
+copy, the image matched all 73,728 bytes of the proofed reference. Its SHA-256
+is `1f5326e038de5b741b2f27b01ec949dbd688cf1906994e997402587c8628f40e`.
+The comparison verifies the output of this specific staging procedure.

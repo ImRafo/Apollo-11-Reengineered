@@ -21,10 +21,11 @@ hardware model. [Historical sources and attribution](docs/HISTORICAL_SOURCES.md)
 | Emulator smoke test | The verified Luminary rope met a deterministic yaAGC boot checkpoint |
 
 The archived Luminary transcription has two missing include names. A staged
-alias experiment builds it and finds four differences from the proofed rope.
-The project records those differences and preserves the archive as supplied.
+alias-only build differs from the proofed rope in four encoded words.
+Correcting the layout of two relative labels in the staged copy produces a
+byte-identical rope while preserving the archive as supplied.
 [Historical build results](docs/HISTORICAL_BUILD.md).
-[Archive alias experiment](experiments/archive-include-aliases.md).
+[Archive reproduction experiment](experiments/archive-include-aliases.md).
 
 ## AGC Block II
 
