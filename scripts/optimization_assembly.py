@@ -13,7 +13,11 @@ else:
 ENTRY = 0o4000
 DATA = 0o4400
 STOP = 0o4600
-SYMBOLS = """X               EQUALS  100
+SYMBOLS = """A               EQUALS  0
+L               EQUALS  1
+Q               EQUALS  2
+CYR             EQUALS  20
+X               EQUALS  100
 XLOW            EQUALS  101
 Y               EQUALS  102
 OUT             EQUALS  103"""
