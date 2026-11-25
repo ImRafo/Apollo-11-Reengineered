@@ -1,0 +1,7 @@
+title = "Load ONE on the Comanche sign branch"
+origin = "Comanche055/P40-P47.agc:2247-2254"
+scope = "X models DAPDATR2 and OUT models ACORBD. Both mask outcomes are tested over every raw input word; downstream vehicle logic is outside the fragment."
+expected = "match"
+
+[inputs]
+x = "all"
