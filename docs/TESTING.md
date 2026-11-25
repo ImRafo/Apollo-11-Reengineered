@@ -24,3 +24,8 @@ upstream and normalized archive ropes byte for byte against the proofed
 reference, exports fixed-bank analysis and checks the headless boot
 checkpoint. These integration checks are also available locally through
 the [historical build guide](HISTORICAL_BUILD.md).
+
+The same workflow runs the assembled fragments and compares every WAITLIST
+high-word dispatch case in the original and experimental ropes. To
+reproduce the measured timings and counterexamples, use the
+[assembly experiment commands](../experiments/assembly/README.md).

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "routine": "Luminary 099 WAITLIST high-word dispatch at bank 01, address 3456 octal",
+  "rationale": "Compare the ordinary erasable high word directly with CCS and use the original five addresses for the four exits.",
+  "original_code": "        CA      LONGTIME\n        CCS     A\n        TCF     LONGCYCL\n        TCF     +2\n        TCF     LONGPOOH",
+  "modified_code": "        CCS     LONGTIME\n        TCF     LONGCYCL\n        TCF     +3\n        TCF     LONGPOOH\n        TCF     +1",
+  "memory_words": {
+    "original": 5,
+    "modified": 5,
+    "evidence": "experiments/assembly/README.md, WAITLIST in two complete ropes; scripts/waitlist_overlay.py checks the five code words and bank checksum."
+  },
+  "execution_mct": {
+    "original": 5,
+    "modified": 3,
+    "evidence": "scripts/waitlist_overlay.py, positive, positive-zero and negative paths; negative zero measured 4 to 3 MCT."
+  },
+  "equivalence": {
+    "result": "pass",
+    "evidence": "Both complete ropes reached the expected destination with identical watched state for all 32,768 high-word encodings."
+  },
+  "emulator": {
+    "result": "pass",
+    "evidence": "Pinned yaAGC measured the original and staged ropes on Windows with Zig and Linux with GCC."
+  },
+  "limitations": "The probe inhibits interrupts, uses a fixed initial state and stops before executing the destination instruction. Coverage is limited to the high-word dispatch.",
+  "status": "verified"
+}

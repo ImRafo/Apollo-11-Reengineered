@@ -17,6 +17,7 @@ hardware model. [Historical sources and attribution](docs/HISTORICAL_SOURCES.md)
 | Source statistics and comparison | Text and JSON reports for a supported subset of Block II yaYUL source |
 | Fixed-memory analysis | Bank occupation, checksums and unlisted ranges from completed AGC4 listings |
 | Optimization reports | A versioned evidence template and validator |
+| Assembly experiments | Reproducible yaAGC comparisons, including a size-preserving WAITLIST variant |
 | Luminary 099/1 reproduction | The pinned Virtual AGC build matched the proofed reference byte for byte |
 | Emulator smoke test | The verified Luminary rope met a deterministic yaAGC boot checkpoint |
 
@@ -66,7 +67,7 @@ flowchart LR
 | [scripts/](scripts/) | Virtual AGC setup, rope verification and emulator harness |
 | [tests/](tests/) | Automated tests and representative inputs |
 | [optimizations/](optimizations/) | Evidence record template |
-| [experiments/](experiments/) | Reproducible experiments and observed results |
+| [experiments/](experiments/) | Historical reproduction and [assembly experiment results](experiments/assembly/README.md) |
 | [docs/](docs/) | Architecture, tooling, testing and historical provenance |
 | [.github/](.github/) | CI workflows and issue templates |
 

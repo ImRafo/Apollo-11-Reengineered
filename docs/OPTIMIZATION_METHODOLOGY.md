@@ -23,5 +23,7 @@ A verified report has at least one measured metric and passing records for
 both equivalence and emulator checks. Verification applies to the documented
 inputs and hardware-state assumptions.
 
-The repository starts with a reproduced baseline and a bounded boot check.
-The first verified assembly optimization remains a roadmap milestone.
+The [WAITLIST evidence record](../optimizations/waitlist-direct-ccs.json)
+demonstrates this process for a bounded dispatch in two complete ropes.
+The [experiment results](../experiments/assembly/README.md) also retain
+counterexamples and candidates with timing or memory tradeoffs.
