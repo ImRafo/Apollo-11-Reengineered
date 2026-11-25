@@ -502,11 +502,11 @@ LNGCALL2	LXCH	LONGEXIT +1	# SAVE THE CORRECT BB FOR RETURN
 		ADS	Q
 		TS	LONGEXIT
 
-		CA	LONGTIME	# CHECK FOR LEGITIMATE DELTA-TIME
-		CCS	A
-		TCF	LONGCYCL	# HI-ORDER OK --> ALL IS OK.
-		TCF	+2		# HI-ORDER ZERO --> CHECK LO-ORDER.
-		TCF	LONGPOOH	# HI-ORDER NEG. --> NEG. DT
+                CCS     LONGTIME    # Test the erasable high word directly.
+                TCF     LONGCYCL
+                TCF     +3          # +0 enters the following low-word check.
+                TCF     LONGPOOH
+                TCF     +1          # -0 enters the same low-word check.
  +2		CA	LONGTIME +1	# CHECK LO-ORDER FOR ZERO OR NEGATIVE.
 		EXTEND
 		BZMF	LONGPOOH	# BAD DELTA-TIME.  ABORT

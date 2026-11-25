@@ -106,11 +106,14 @@ def normalize_relative_labels(working: Path) -> None:
         path = working / name
         contents = path.read_bytes()
         record = b"\n" + old
+        corrected = b"\n" + new
+        if contents.count(corrected) == 1 and record not in contents:
+            continue
         if contents.count(record) != 1:
             raise ValueError(
                 f"{path}: expected exactly one archived relative-label record"
             )
-        path.write_bytes(contents.replace(record, b"\n" + new, 1))
+        path.write_bytes(contents.replace(record, corrected, 1))
 
 
 def stage_program(checkout: Path, output: Path, source: str) -> Path:
@@ -127,7 +130,9 @@ def stage_program(checkout: Path, output: Path, source: str) -> Path:
     return working
 
 
-def assemble_staged(working: Path, tools: Path, output: Path) -> bytes:
+def assemble_staged(
+    working: Path, tools: Path, output: Path, *, filename: str = "Luminary099.bin"
+) -> bytes:
     listing, log = output / "assembly.lst", output / "assembly.log"
     with listing.open("wb") as stdout, log.open("wb") as stderr:
         result = subprocess.run(
@@ -143,7 +148,7 @@ def assemble_staged(working: Path, tools: Path, output: Path) -> bytes:
         )
     binary = working / "MAIN.agc.bin"
     data = read_rope(binary)
-    binary.replace(output / "Luminary099.bin")
+    binary.replace(output / filename)
     return data
 
 
