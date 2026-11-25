@@ -1,0 +1,9 @@
+title = "Load the IMU A/L constants as a pair"
+origin = "Luminary099/IMU_MODE_SWITCHING_ROUTINES.agc:1010-1012"
+scope = "The baseline reuses ZERO and BIT5. The candidate adds a dedicated adjacent pair to fixed memory and preserves the original constants."
+expected = "match"
+
+[inputs]
+a = [0o0, 0o40000, 0o177777]
+l = [0o0, 0o1, 0o77777]
+q = [0o0, 0o4321]
