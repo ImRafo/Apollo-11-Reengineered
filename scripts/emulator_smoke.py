@@ -2,17 +2,18 @@
 
 import argparse
 import hashlib
-import os
 import subprocess
 import sys
 from pathlib import Path
 
 if __package__:
     from .reproduce_luminary import REFERENCE_SHA256, read_rope
-    from .virtualagc import CHECKOUT, ROOT, compiler_command, tool_path, verify_checkout
+    from .virtualagc import CHECKOUT, ROOT
+    from .yaagc import build_harness
 else:
     from reproduce_luminary import REFERENCE_SHA256, read_rope
-    from virtualagc import CHECKOUT, ROOT, compiler_command, tool_path, verify_checkout
+    from virtualagc import CHECKOUT, ROOT
+    from yaagc import build_harness
 
 
 def main() -> int:
@@ -31,28 +32,7 @@ def main() -> int:
                 "the boot check requires the byte-identical Luminary 099 rope"
             )
         checkout, output = args.checkout.resolve(), args.output.resolve()
-        verify_checkout(checkout)
-        command, _ = compiler_command(args.cc)
-
-        output.mkdir(parents=True, exist_ok=True)
-        source = checkout / "yaAGC"
-        harness = tool_path(output, "luminary_smoke")
-        components = ["agc_engine.c", "agc_engine_init.c", "NullAPI.c", "rfopen.c"]
-        if os.name == "nt":
-            components.append("random.c")
-        subprocess.run(
-            [
-                *command,
-                "-O2",
-                "-I",
-                source,
-                ROOT / "scripts" / "luminary_smoke.c",
-                *(source / component for component in components),
-                "-o",
-                harness,
-            ],
-            check=True,
-        )
+        harness = build_harness(checkout, output, "luminary_smoke", args.cc)
         result = subprocess.run(
             [harness, rope],
             cwd=output,

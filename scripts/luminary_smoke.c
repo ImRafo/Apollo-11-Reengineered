@@ -6,19 +6,6 @@
 enum { SMOKE_CYCLES = 4096 };
 static agc_t state;
 
-/* A headless CPU test does not collect debugger backtraces. */
-void BacktraceAdd(agc_t *cpu, int cause)
-{
-    (void)cpu;
-    (void)cause;
-}
-
-/* Unix initialization requests nonblocking stdin for interactive input. */
-void UnblockSocket(int descriptor)
-{
-    (void)descriptor;
-}
-
 int main(int argc, char **argv)
 {
     if (argc != 2) {
