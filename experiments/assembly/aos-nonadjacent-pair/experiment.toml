@@ -1,0 +1,9 @@
+title = "Single DCA cannot load AOSQ and AOSR"
+origin = "Luminary099/AOSTASK_AND_AOSJOB.agc:604-606 and Luminary099/ERASABLE_ASSIGNMENTS.agc:1870-1871"
+scope = "X is AOSQ, XLOW is its intervening low word, and Y is AOSR at X+2. This tests the existing erasable layout."
+expected = "counterexample"
+
+[inputs]
+x = [0o0, 0o12345, 0o77777]
+xlow = [0o1, 0o77777]
+y = [0o2, 0o77777]
