@@ -1,0 +1,8 @@
+title = "Compare CS plus AD with the SU extracode"
+origin = "Luminary099/AGC_BLOCK_TWO_SELF_CHECK.agc:414-415"
+scope = "X and Y model SKEEP2 and SKEEP3. Boundary pairs include both zeros and both overflow directions."
+expected = "match"
+
+[inputs]
+x = [0o0, 0o1, 0o37777, 0o40000, 0o77776, 0o77777]
+y = [0o0, 0o1, 0o37777, 0o40000, 0o77776, 0o77777]
