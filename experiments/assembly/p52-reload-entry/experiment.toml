@@ -1,0 +1,8 @@
+title = "P52's repeated load serves more than the default entry"
+origin = "Luminary099/P51-P53.agc:134-140"
+scope = "X models OPTION2, Y selects the modeled entry, and OUT records A at the call boundary. One source path enters the TS directly with BIT2."
+expected = "counterexample"
+
+[inputs]
+x = [0o0, 0o123]
+y = [0o0, 0o1, 0o77776, 0o77777]
