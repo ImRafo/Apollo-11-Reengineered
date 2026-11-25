@@ -1,0 +1,7 @@
+title = "Positive zero fails to replace L self-cancellation"
+origin = "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc:550-551"
+scope = "L is the architectural 15-bit value. The comparison stops before the following ZL and covers all raw encodings of L."
+expected = "counterexample"
+
+[inputs]
+l = "all"

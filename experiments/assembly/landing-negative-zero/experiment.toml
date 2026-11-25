@@ -1,0 +1,7 @@
+title = "Replace L self-cancellation with the existing NEG0"
+origin = "Luminary099/LUNAR_LANDING_GUIDANCE_EQUATIONS.agc:550-551 and Luminary099/FIXED_FIXED_CONSTANT_POOL.agc:62"
+scope = "All 15-bit L patterns are tested before the following ZL. VNEG0 represents the existing fixed NEG0 constant."
+expected = "match"
+
+[inputs]
+l = "all"
