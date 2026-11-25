@@ -26,10 +26,19 @@ def encode_inputs(experiment: Experiment) -> str:
 
 
 def measure(
-    harness: Path, rope: Path, entry: int, stop: int, inputs: str
+    harness: Path,
+    rope: Path,
+    entry: int,
+    stop: int,
+    inputs: str,
+    *,
+    bank_and_x: tuple[int, int] | None = None,
 ) -> list[Observation]:
+    command = [harness, rope, f"{entry:o}", f"{stop:o}"]
+    if bank_and_x is not None:
+        command.extend(f"{value:o}" for value in bank_and_x)
     result = subprocess.run(
-        [harness, rope, f"{entry:o}", f"{stop:o}"],
+        command,
         capture_output=True,
         text=True,
         input=inputs,
