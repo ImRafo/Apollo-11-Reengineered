@@ -1,9 +1,20 @@
 import unittest
 
-from scripts.waitlist_overlay import ORIGINAL, REPLACEMENT, replace_dispatch
+from scripts.waitlist_overlay import (
+    DISPATCH_PATHS,
+    ORIGINAL,
+    REPLACEMENT,
+    replace_dispatch,
+)
 
 
 class WaitlistOverlayTest(unittest.TestCase):
+    def test_dispatch_groups_partition_the_entire_high_word_domain(self):
+        cases = [value for _, values, _, _ in DISPATCH_PATHS for value in values]
+        self.assertEqual(sorted(cases), list(range(0o100000)))
+        targets = {name: stop for name, _, stop, _ in DISPATCH_PATHS}
+        self.assertEqual(targets["positive_zero"], targets["negative_zero"])
+
     def setUp(self):
         self.original = b"".join(
             b"\t\t" + b"\t".join(tokens) + b"\r\n" for tokens in ORIGINAL

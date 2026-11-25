@@ -8,6 +8,8 @@ from pathlib import Path
 from uuid import uuid4
 
 if __package__:
+    from .optimization_cases import parse_experiment
+    from .optimization_probe import compare, encode_inputs, measure
     from .reproduce_luminary import (
         assemble_staged,
         compare_ropes,
@@ -15,7 +17,10 @@ if __package__:
         stage_program,
     )
     from .virtualagc import CHECKOUT, REVISION, ROOT, TOOLS, verify_checkout
+    from .yaagc import build_harness
 else:
+    from optimization_cases import parse_experiment
+    from optimization_probe import compare, encode_inputs, measure
     from reproduce_luminary import (
         assemble_staged,
         compare_ropes,
@@ -23,6 +28,7 @@ else:
         stage_program,
     )
     from virtualagc import CHECKOUT, REVISION, ROOT, TOOLS, verify_checkout
+    from yaagc import build_harness
 
 REPLACEMENT = (
     ROOT / "experiments" / "assembly" / "waitlist-direct-ccs" / "flight-overlay.agc"
@@ -37,6 +43,13 @@ ORIGINAL = (
 FIXED_BANK = 0o01
 ENTRY = 0o3456
 CHECKSUM_OFFSET = 0o1777
+LONGTIME = 0o1153
+DISPATCH_PATHS = (
+    ("positive", range(1, 0o40000), 0o3466, 2),
+    ("positive_zero", (0,), 0o3463, 2),
+    ("negative", range(0o40000, 0o77777), 0o3521, 2),
+    ("negative_zero", (0o77777,), 0o3463, 1),
+)
 
 
 def replace_dispatch(text: bytes, replacement: bytes) -> bytes:
@@ -98,6 +111,36 @@ def build_overlay(checkout: Path, tools: Path, output: Path) -> dict:
     }
 
 
+def profile_dispatch(harness: Path, reference: Path, variant: Path) -> dict:
+    paths = {}
+    for name, values, stop, expected_savings in DISPATCH_PATHS:
+        experiment = parse_experiment(
+            REPLACEMENT,
+            {
+                "title": name,
+                "origin": "Luminary099 WAITLIST, bank 01",
+                "scope": "High-word dispatch through its first destination",
+                "expected": "match",
+                "inputs": {"x": list(values)},
+            },
+        )
+        inputs = encode_inputs(experiment)
+        before = measure(
+            harness, reference, ENTRY, stop, inputs, bank_and_x=(FIXED_BANK, LONGTIME)
+        )
+        after = measure(
+            harness, variant, ENTRY, stop, inputs, bank_and_x=(FIXED_BANK, LONGTIME)
+        )
+        summary = compare(experiment, before, after)
+        paths[name] = {
+            "destination": f"{stop:04o}",
+            "matches_timing": summary["mct_saved_histogram"]
+            == {expected_savings: len(values)},
+            **summary,
+        }
+    return paths
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--checkout", type=Path, default=CHECKOUT)
@@ -105,23 +148,45 @@ def main() -> int:
     parser.add_argument(
         "--output", type=Path, default=ROOT / "build" / "waitlist-experiment"
     )
+    parser.add_argument(
+        "--cc", help="path to a GCC-compatible compiler; default: pinned Zig"
+    )
     args = parser.parse_args()
     output = args.output.resolve() / f"run-{uuid4().hex[:12]}"
     try:
-        report = build_overlay(
-            args.checkout.resolve(), args.toolchain.resolve(), output
+        checkout = args.checkout.resolve()
+        report = build_overlay(checkout, args.toolchain.resolve(), output)
+        harness = build_harness(checkout, output, "agc_probe", args.cc)
+        paths = profile_dispatch(
+            harness, output / "oct2bin.bin", output / "Luminary099.bin"
         )
+        report["longtime_address"] = f"{LONGTIME:04o}"
+        report["dispatch_paths"] = paths
         (output / "overlay.json").write_text(
             json.dumps(report, indent=2) + "\n", encoding="utf-8"
         )
-    except (OSError, ValueError, subprocess.CalledProcessError) as error:
+    except (
+        OSError,
+        ValueError,
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+    ) as error:
         print(f"WAITLIST overlay: {error}", file=sys.stderr)
         return 1
     print(
         f"WAITLIST overlay: five code words and one checksum changed in bank {report['bank']}"
     )
+    for name, summary in paths.items():
+        print(
+            f"  {name}: {summary['vectors']} vectors, MCT saved {summary['mct_saved_histogram']}"
+        )
     print(f"Report and rope written to {output}")
-    return 0
+    return int(
+        not all(
+            path["matches_expectation"] and path["matches_timing"]
+            for path in paths.values()
+        )
+    )
 
 
 if __name__ == "__main__":
