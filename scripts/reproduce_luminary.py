@@ -113,7 +113,7 @@ def normalize_relative_labels(working: Path) -> None:
         path.write_bytes(contents.replace(record, b"\n" + new, 1))
 
 
-def assemble(checkout: Path, tools: Path, output: Path, source: str) -> bytes:
+def stage_program(checkout: Path, output: Path, source: str) -> Path:
     working = output / "source"
     working.mkdir()
     program = (checkout if source == "upstream" else ROOT) / "Luminary099"
@@ -124,7 +124,10 @@ def assemble(checkout: Path, tools: Path, output: Path, source: str) -> bytes:
     if source in ("archive-aliases", "archive-normalized"):
         for alias, original in ALIASES.items():
             shutil.copyfile(working / original, working / alias)
+    return working
 
+
+def assemble_staged(working: Path, tools: Path, output: Path) -> bytes:
     listing, log = output / "assembly.lst", output / "assembly.log"
     with listing.open("wb") as stdout, log.open("wb") as stderr:
         result = subprocess.run(
@@ -142,6 +145,10 @@ def assemble(checkout: Path, tools: Path, output: Path, source: str) -> bytes:
     data = read_rope(binary)
     binary.replace(output / "Luminary099.bin")
     return data
+
+
+def assemble(checkout: Path, tools: Path, output: Path, source: str) -> bytes:
+    return assemble_staged(stage_program(checkout, output, source), tools, output)
 
 
 def reproduce(checkout: Path, tools: Path, output: Path, source: str) -> dict:
