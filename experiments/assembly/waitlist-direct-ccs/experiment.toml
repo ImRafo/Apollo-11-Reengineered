@@ -1,0 +1,7 @@
+title = "WAITLIST directly compares the high word"
+origin = "Luminary099/WAITLIST.agc:505-510"
+scope = "X models ordinary erasable LONGTIME. OUT distinguishes the four CCS paths; the real scheduler and interrupts are outside this fragment."
+expected = "match"
+
+[inputs]
+x = "all"
