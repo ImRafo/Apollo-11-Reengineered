@@ -1,0 +1,8 @@
+title = "Use the existing ONE constant directly"
+origin = "Comanche055/P11.agc:350-351"
+scope = "The excerpt computes the argument immediately before WAITLIST. ZERO and ONE are fixed constants."
+expected = "match"
+
+[inputs]
+a = [0o0, 0o1, 0o37777, 0o40000, 0o137777, 0o177777]
+l = [0o0, 0o77777]
