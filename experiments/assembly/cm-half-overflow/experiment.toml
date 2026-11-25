@@ -1,0 +1,8 @@
+title = "A stored word cannot replace positive fractional overflow"
+origin = "Comanche055/CM_ENTRY_DIGITAL_AUTOPILOT.agc:245-246"
+scope = "POS1/2 is modeled as octal 20000. The tempting fixed constant 40000 is interpreted as a signed 15-bit word when loaded."
+expected = "counterexample"
+
+[inputs]
+a = [0o0, 0o40000, 0o177777]
+l = [0o0, 0o77777]
