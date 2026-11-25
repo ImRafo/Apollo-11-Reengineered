@@ -41,7 +41,8 @@ static int load_case(const char *line, unsigned entry)
         if (!read_octal(&line, limit, &value)) {
             return 0;
         }
-        state.Erasable[0][address] = (int16_t)value;
+        state.Erasable[0][address] =
+            address == RegL ? SignExtend((int16_t)value) : (int16_t)value;
     }
     while (isspace((unsigned char)*line)) {
         ++line;
