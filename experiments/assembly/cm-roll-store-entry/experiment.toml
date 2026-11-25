@@ -1,0 +1,8 @@
+title = "The negative-zero path requires the apparent self-store"
+origin = "Comanche055/CM_ENTRY_DIGITAL_AUTOPILOT.agc:822-828"
+scope = "Y models CMDAPMOD and X models LCX/360. This compares the load path and the negative-zero path entering at TS; the unrelated positive exit is excluded."
+expected = "counterexample"
+
+[inputs]
+x = [0o0, 0o1, 0o40000, 0o77777]
+y = [0o0, 0o77776, 0o77777]
